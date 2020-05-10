@@ -1,0 +1,18 @@
+{% extends "card_base.html" %}
+{% load bootstrap4 %}
+
+{% block title %} Sign Up {% endblock %}
+
+{% block card_content %}
+  <div class="card-body">
+    <h4 class="card-title">Sign Up</h4>
+    <hr>
+    <form method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+      {% endbuttons %}
+    </form>
+  </div>
+{% endblock %}
