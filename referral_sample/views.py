@@ -1,105 +1,58 @@
+import logging
+
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
+from django.contrib.staticfiles.storage import staticfiles_storage
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from .models import Booking, Seat, SessionUser
+from .serializers import BookingSerializer, MySerializer
+
+logger = logging.getLogger('django')
 
 
-class AcceptJsonMixin:
-    """
-    A simple mixin providing one method telling whether the request was made with Accept: application/json
-    """
-    def is_ajax(self):
-        return self.request.META.get('HTTP_ACCEPT') == 'application/json'
+class RootView(TemplateView):
+    template_name = 'index.html'
 
 
-class RootView(LoginRequiredMixin, AcceptJsonMixin, TemplateView):
-    template_name = 'root.html'
+class BookingView(APIView):
+    def booking_data(self, request):
+        s: SessionStore = request.session
+        b = Booking.objects.filter(session_key=s.session_key).first()
+        return {
+            'rows': Seat.manager.serialize(b),
+            'booking': BookingSerializer(b).data if b else None
+        }
 
-    def _update_context(self, ctx):
-        ctx['referral_link'] = self.request.build_absolute_uri(self.request.user.profile.referral_url)
-        ctx['balance'] = self.request.user.profile.balance
-        return ctx
+    def get(self, request, format=None):
+        return Response(self.booking_data(request))
 
-    def handle_no_permission(self):
-        """
-        Overridden from LoginRequiredMixin. Returns 401 for an AJAX request if unauthorized.
-        """
-        if self.is_ajax():
-            return JsonResponse({'error': 'unauthorized'}, status=401)
-        return super().handle_no_permission()
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        return self._update_context(ctx)
-
-    def get(self, request, *args, **kwargs):
-        if self.is_ajax():
-            return JsonResponse(self._update_context({}))
+    def post(self, request, format=None):
+        serializer = MySerializer(data=request.data)
+        response = {}
+        if serializer.is_valid():
+            data = serializer.validated_data
+            seats = data['book_seats']
+            s = request.session
+            if not s.session_key:
+                s.save()
+            logger.error('POST key: %s', s.session_key)
+            b = serializer.save(session_key=s.session_key)
+            if not Seat.manager.book(seats, b):
+                response = {'error': 'seat taken'}
+            response.update({
+                'rows': Seat.manager.serialize(b),
+                'booking': BookingSerializer(b).data if b else None
+            })
         else:
-            return super().get(request, *args, **kwargs)
-
-
-class SignupView(AcceptJsonMixin, TemplateView):
-    template_name = 'signup.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        if 'form' not in ctx:
-            ctx['form'] = UserCreationForm()
-        return ctx
-
-    def post(self, request, *args, **kwargs):
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            # Save the new user, update its referral status, login and redirect to root page.
-            new_user = form.save()
-            ref = request.GET.get('ref')
-            new_user.profile.update_referral(ref)
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            if self.is_ajax():
-                return JsonResponse({})
-            return redirect('root')
-        else:
-            if self.is_ajax():
-                return JsonResponse(form.errors, status=400)
-            return self.render_to_response(self.get_context_data(form=form))
-
-
-class SignInView(AcceptJsonMixin, LoginView):
-    template_name = 'login.html'
-
-    def form_invalid(self, form):
-        """
-        Overridden from LoginView to return 400 for AJAX requests.
-        """
-        response = super().form_invalid(form)
-        if self.is_ajax():
-            return JsonResponse(form.errors, status=400)
-        else:
-            return response
-
-    def form_valid(self, form):
-        """
-        Overridden from LoginView to return empty response for AJAX requests.
-        """
-        response = super().form_valid(form)
-        if self.is_ajax():
-            return JsonResponse({})
-        else:
-            return response
-
-
-class SignOutView(AcceptJsonMixin, LogoutView):
-    template_name = 'logout.html'
-
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        if self.is_ajax():
-            return JsonResponse({}, status=response.status_code)
-        return response
+            logger.error('VALIDATION ERROR')
+            response = {'field_errors': serializer.errors}
+            response.update(self.booking_data(request))
+        return Response(response)

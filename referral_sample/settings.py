@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap4',
-    'referral_sample.apps.ReferralSampleConfig'
+    'referral_sample.apps.ReferralSampleConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
+    'referral_sample.middleware.CustomCorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,8 +58,7 @@ ROOT_URLCONF = 'referral_sample.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,15 +119,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATIC_URL = 'https://storage.googleapis.com/a-martynovich/static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-# LOGIN_REDIRECT_URL = 'root'
-LOGIN_URL = 'login'
-
-INVITEE_REWARD = 10
-INVITER_REWARD = 10
-INVITER_TARGET_COUNT = 5
+BOOKING_SEATS_ROWS = 5
+BOOKING_SEATS_PER_ROW = 5
