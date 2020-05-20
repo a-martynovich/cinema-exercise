@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Booking, Seat
-from .serializers import BookingSerializer, MySerializer
+from .serializers import PersonSerializer, MySerializer
 
 logger = logging.getLogger('django')
 
@@ -21,7 +21,7 @@ class BookingView(APIView):
         b = Booking.objects.filter(session_key=s.session_key).first()
         return {
             'rows': Seat.manager.serialize(b),
-            'booking': BookingSerializer(b).data if b else None
+            'booking': PersonSerializer(b).data if b else None
         }
 
     def get(self, request, format=None):
@@ -42,7 +42,7 @@ class BookingView(APIView):
                 response = {'error': 'seat taken'}
             response.update({
                 'rows': Seat.manager.serialize(b),
-                'booking': BookingSerializer(b).data if b else None
+                'booking': PersonSerializer(b).data if b else None
             })
         else:
             logger.error('VALIDATION ERROR')
