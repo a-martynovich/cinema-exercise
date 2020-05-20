@@ -1,16 +1,51 @@
-# Amitree Take Home Technical Challenge
+# Indorse Technical Assignment "Cinema Ticket Booking"
+
+## Initial description
+Create a system that allows users to book a seat in a movie theatre - no authentication required.
+This assignment is mainly to test the skills of the developers which would be useful for e-commerce websites or applications like shopping carts, booking systems and the like.
+
+Display all the seats in the theater and allow users to book it by clicking it. Only one user should be allowed to reserved a specific seat.
+If another user clicks a seat that was booked, he should get an error. You must handle the concurrency scenarios and avoid data inconsistency.
+
+Seats can be unbooked by clicking the booked seat again.
 
 ## Implementation
-The server is written in Python37/Django. It uses PostgreSQL for storing data and Bootstrap for fancy forms and cards.
-Tests are in `booking_system/tests.py`.
 
-### Execution
+**Live solution**: https://django-test-f3mfj5lgea-lz.a.run.app/
+
+The frontend is written in React. Its tests are in `frontend/src/App.test.js`.
+These tests are executed by running 
+```
+npm install && npm run tests 
+```
+
+The backend is written in Python37/Django. It uses PostgreSQL for storing data and Bootstrap for fancy forms and cards.
+Tests are in `booking_system/tests.py`. These tests are executed by running 
+```
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py test
+```
+
+### Building Frontend
+In order to build frontend in its subdirectory:
+```
+cd frontend
+npm install
+npm run build
+cp build/index.html ../booking_system/templates/
+cp -rv build/static/* ../static/
+```
+
+### Backend Execution
+**Make sure you build the frontend first!**
+
 One way to execute the code is to build a Docker container with the supplied Dockerfile. It has everything needed for 
 running the code and it runs automatically. And it's the same container which is going to run in Google Cloud once 
 deployed.
 
 Another way is to run the Python code directly, without building Docker image. Simply install the dependencies, set 
-Postgres connection options, and run the server:
+Postgres connection options, and run the server:****
 ```
 # install dependencies
 pip3 install -r requirements.txt
@@ -60,59 +95,3 @@ gcloud run deploy --image gcr.io/[PROJECT_ID]/django-test --platform managed
 ```
 The server should be running immediately after deployment. It is possible to automate deployment using CI/CD, for 
 example CircleCI which integrates with Github.
-
-### Usage
-The server-rendered UI is self-explanatory. It is also possible to use all endpoints as AJAX API (in a React SPA for 
-example). One common requirement is to set header `Accept: application/json`. For POST requests it is also necessary to 
-set `X-CSRFToken` header to the value of CSRF token written in cookies. Here's an example of using the `/` endpoint with 
-Javascript Fetch API:
-```
-fetch('http://localhost:8000', {
-    headers: {'Accept': 'application/json'}}
-);
-```
-If the user is authorized this request will respond with a JSON object containing two fields: 
-"referral_link" and "balance".
-
-Here's how to login with a POST request:
-```
-fetch('http://localhost:8000/login/', {
-    headers: {
-        'Accept': 'application/json',
-        "X-CSRFToken": getCookie('csrftoken'),
-        "Content-type": "application/x-www-form-urlencoded"
-    },
-    method: 'POST',
-    body: "username=...&password=..."
-});
-```
-The function `getCookie()` looks for a value of the cookie. One may use a helper library to read cookies or write this 
-code from scratch.
-
-The server provides session-based authorization. 
-
-### Endopints
-* `/signup[?ref=...]` 
-
-   Sign up (create a new user). Supply referral token if needed. 
-   The required fields (username, password1, password2) should be www-form-urlencoded and supplied in the body.
-    
-   Response: 200 and `{}` on success, or 40x and `{field: error}`.
-* `/login`
-
-   Log in. Will authorize the session. In non-AJAX mode will redirect to root page after successful login, or display 
-   errors otherwise.
-   
-   Response: 200 and `{}` on success, or 40x and `{field: [errors]}`.
-* `/logout`
-
-   Log out. Deauthorize the session. In non-AJAX mode will display logout message and redirect to login page.
-
-   Response: 200 and `{}` on success. No failures expected except for general server failures.
-* `/`
-
-   The "main" page. In non-AJAX mode displays user info (balance and referral link). In AJAX mode returns those values 
-   in JSON format.
-   
-   Response: 200 and `{}` on success, or 401 and `{error: unauthorized}`.
-
