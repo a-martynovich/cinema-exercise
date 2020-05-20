@@ -21,6 +21,6 @@ from .views import RootView, BookingView
 
 urlpatterns = [
     path('', RootView.as_view(), name='root'),
-    path('booking/', BookingView.as_view()),
+    path('booking/', BookingView.as_view(), name='booking'),
     path('admin/', admin.site.urls),
 ]
