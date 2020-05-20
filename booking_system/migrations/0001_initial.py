@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import referral_sample.models
+import booking_system.models
 
 
 class Migration(migrations.Migration):
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('number', models.PositiveSmallIntegerField()),
                 ('state', models.PositiveSmallIntegerField(default=0)),
-                ('taken', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='referral_sample.SessionUser')),
+                ('taken', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='booking_system.SessionUser')),
             ],
         ),
     ]

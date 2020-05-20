@@ -1,5 +1,5 @@
 """
-ASGI config for referral_sample project.
+ASGI config for booking_system project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'referral_sample.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'booking_system.settings')
 
 application = get_asgi_application()

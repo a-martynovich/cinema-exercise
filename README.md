@@ -2,7 +2,7 @@
 
 ## Implementation
 The server is written in Python37/Django. It uses PostgreSQL for storing data and Bootstrap for fancy forms and cards.
-Tests are in `referral_sample/tests.py`.
+Tests are in `booking_system/tests.py`.
 
 ### Execution
 One way to execute the code is to build a Docker container with the supplied Dockerfile. It has everything needed for 
@@ -25,7 +25,7 @@ export DB_PORT=<Postgres port>
 # Run the server
 python3 manage.py runserver
 # or 
-gunicorn --bind :8000 referral_sample.wsgi
+gunicorn --bind :8000 booking_system.wsgi
 ```  
 
 In both cases the server should be running at port 8000.

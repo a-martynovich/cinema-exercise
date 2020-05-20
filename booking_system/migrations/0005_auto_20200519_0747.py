@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('referral_sample', '0004_auto_20200519_0711'),
+        ('booking_system', '0004_auto_20200519_0711'),
     ]
 
     operations = [
@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='seat',
             name='booking',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='referral_sample.Booking'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='booking_system.Booking'),
         ),
     ]

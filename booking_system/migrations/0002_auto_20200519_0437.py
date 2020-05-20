@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sessions', '0001_initial'),
-        ('referral_sample', '0001_initial'),
+        ('booking_system', '0001_initial'),
     ]
 
     operations = [
@@ -47,6 +47,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sessionuser',
             name='booking',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='referral_sample.Booking'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='booking_system.Booking'),
         ),
     ]

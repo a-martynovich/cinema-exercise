@@ -1,17 +1,6 @@
-from enum import IntEnum
-from uuid import uuid4
-
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.urls import reverse
-from django.utils.http import urlencode
-from django.contrib.sessions.backends.db import SessionStore as DBStore
-from django.contrib.sessions.base_session import AbstractBaseSession
 
 
 class Booking(models.Model):
@@ -20,11 +9,6 @@ class Booking(models.Model):
     email = models.EmailField(max_length=64)
     phone = models.CharField(max_length=64)
     session_key = models.CharField(max_length=40, null=True, blank=True, db_index=True, unique=True)
-
-
-class SessionUser(models.Model):
-    session = models.ForeignKey(Session, on_delete=models.CASCADE)
-    booking = models.ForeignKey(Booking, null=True, on_delete=models.CASCADE)
 
 
 class SeatManager(models.Manager):
@@ -44,8 +28,11 @@ class SeatManager(models.Manager):
         super().bulk_create([self.model(number=n) for n in numbers], ignore_conflicts=True)
 
     def serialize(self, b: Booking):
-        seats = self.get_queryset().all()
+        seats = self.get_queryset().select_related('booking')
         row_length = settings.BOOKING_SEATS_PER_ROW
+        seats_count = row_length*settings.BOOKING_SEATS_ROWS
+        if seats.count() < seats_count:
+            self.populate(range(1, seats_count+1))
         rows = [[{
                 'number': s.number,
                 'available': s.booking is None or s.booking == b,

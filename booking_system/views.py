@@ -1,18 +1,11 @@
 import logging
 
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.sessions.backends.db import SessionStore
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
-from django.http import JsonResponse
-from django.shortcuts import redirect
 from django.views.generic import TemplateView
-from django.contrib.staticfiles.storage import staticfiles_storage
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .models import Booking, Seat, SessionUser
+from .models import Booking, Seat
 from .serializers import BookingSerializer, MySerializer
 
 logger = logging.getLogger('django')

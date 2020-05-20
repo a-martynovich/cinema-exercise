@@ -8,7 +8,7 @@ import django.db.models.manager
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('referral_sample', '0002_auto_20200519_0437'),
+        ('booking_system', '0002_auto_20200519_0437'),
     ]
 
     operations = [
@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='seat',
             name='booking',
-            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='referral_sample.Booking'),
+            field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='booking_system.Booking'),
         ),
     ]
